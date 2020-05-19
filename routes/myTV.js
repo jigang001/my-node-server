@@ -1,20 +1,18 @@
-const express = require('express')
-const http = require("http");
-const app = express()
-const port = 3000
+const express = require('express');
+const https = require('https');
+const router = express.Router();
+const apikey = '04586d229307477aa96526f6e53cd1bb'
 
-app.get('/TVTime/LookUp', (req, res) => {
-    console.log(req.query)
-    let path = '/TVTime/LookUp?key=' + req.query.key + '&pId=' + req.query.pId
+router.get('/TVTime/LookUp', (req, res) => {
+    let path = '/TVTime/LookUp?key=' + apikey + '&pId=' + req.query.pId
     getLookUp ( path, (body) => {
         res.json(JSON.parse(body))
         res.end();
     })
 })
 
-app.get('/TVTime/TVlist', (req, res) => {
-    console.log(req.query)
-    let path = '/TVTime/TVlist?key=' + req.query.key + '&code=' + req.query.code
+router.get('/TVTime/TVlist', (req, res) => {
+    let path = '/TVTime/TVlist?key=' + apikey + '&code=' + req.query.code
     getTVlist ( path, (body) => {
         res.json(JSON.parse(body))
         res.end();
@@ -31,12 +29,10 @@ function getLookUp (path, callback) { // 查询频道列表
         }
     }
     let body = '';
-    let req = http.request(opt, function(res) {
-        console.log("response: " + res.statusCode);
+    let req = https.request(opt, function(res) {
         res.on('data',function(data){
             body += data;
         }).on('end', function(){
-            console.log(body)
             callback(body)
         });
     }).on('error', function(e) {
@@ -55,12 +51,10 @@ function getTVlist (path, callback) { // 查询频道列表
         }
     }
     let body = '';
-    let req = http.request(opt, function(res) {
-        console.log("response: " + res.statusCode);
+    let req = https.request(opt, function(res) {
         res.on('data',function(data){
             body += data;
         }).on('end', function(){
-            console.log(body)
             callback(body)
         });
     }).on('error', function(e) {
@@ -69,4 +63,4 @@ function getTVlist (path, callback) { // 查询频道列表
     req.end();
 }
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+module.exports = router;
