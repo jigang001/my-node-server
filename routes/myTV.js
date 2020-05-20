@@ -1,21 +1,70 @@
 const express = require('express');
 const https = require('https');
+const redis = require('redis');
+const client = redis.createClient(6379, '127.0.0.1');
 const router = express.Router();
-const apikey = '04586d229307477aa96526f6e53cd1bb'
+const apikey = '04586d229307477aa96526f6e53cd1bb';
+const today = new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate(); // 当前日期
 
-router.get('/TVTime/LookUp', (req, res) => {
-    let path = '/TVTime/LookUp?key=' + apikey + '&pId=' + req.query.pId
-    getLookUp ( path, (body) => {
-        res.json(JSON.parse(body))
+let setRedis = function (key, data) { // 添加redis
+    return new Promise ((resolve, reject) => {
+        client.set(key, data, function (err, result) {
+            resolve(result)
+        })
+    })
+}
+
+let getRedis = function (key) { // redis查询
+    return new Promise ((resolve, reject) => {
+        client.get(key, function (err, data) {
+            if (data) {
+                resolve(data)
+            } else {
+                reject()
+            }
+        })
+    })
+}
+
+router.get('/TVTime/LookUp', (req, res) => { // 频道列表接口
+    let redisKey = req.query.pId + today
+    getRedis(redisKey).then(result => {
+        res.json({
+            result: JSON.parse(result),
+            error_code: 0,
+            reason: "Succes"
+        })
         res.end();
+    }).catch(err => {
+        let path = '/TVTime/LookUp?key=' + apikey + '&pId=' + req.query.pId
+        getLookUp ( path, (body) => {
+            let data = JSON.stringify(JSON.parse(body).result)
+            setRedis(redisKey, data).then(result => {
+                res.json(JSON.parse(body))
+                res.end();
+            })
+        })
     })
 })
 
-router.get('/TVTime/TVlist', (req, res) => {
-    let path = '/TVTime/TVlist?key=' + apikey + '&code=' + req.query.code
-    getTVlist ( path, (body) => {
-        res.json(JSON.parse(body))
+router.get('/TVTime/TVlist', (req, res) => {  // 节目列表接口
+    let redisKey = req.query.code + today
+    getRedis(redisKey).then(result => {
+        res.json({
+            result: JSON.parse(result),
+            error_code: 0,
+            reason: "Succes"
+        })
         res.end();
+    }).catch(err => {
+        let path = '/TVTime/TVlist?key=' + apikey + '&code=' + req.query.code
+        getTVlist ( path, (body) => {
+            let data = JSON.stringify(JSON.parse(body).result)
+            setRedis(redisKey, data).then(result => {
+                res.json(JSON.parse(body))
+                res.end();
+            })
+        })
     })
 })
 
