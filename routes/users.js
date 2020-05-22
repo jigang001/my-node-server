@@ -13,10 +13,8 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-// connection.end();
-
 /* GET users listing. */
-/* router.get('/', function(req, res, next) {
+ router.get('/', function(req, res, next) {
     getOpenId ( req.query.code, (body) => {
         res.json(JSON.parse(body))
         res.end();
@@ -38,23 +36,47 @@ function getOpenId (code, callback) { // 查询openId
             body += data;
         }).on('end', function(){
             console.log(JSON.parse(body).openid)
-            //查
-            connection.query('INSERT INTO user (openid) VALUES ("' + JSON.parse(body).openid + '")', function (err, result) {
-                if(err){
-                    console.log('[SELECT ERROR] - ',err.message);
-                    return;
+            getUserByOpenid (JSON.parse(body).openid).then( result => { // 查
+                if (result.length === 0) { // 如果数据库没有这条openid
+                    insertUserByOpenid (JSON.parse(body).openid).then( result => { // 插入数据
+                        console.log(result)
+                    }).catch( err => {
+                        console.log(err)
+                    })
                 }
-
-                console.log('--------------------------SELECT----------------------------');
-                console.log(result);
-                console.log('------------------------------------------------------------\n\n');
-            });
+            }).catch( err => {
+                console.log(err)
+            })
             callback(body)
         });
     }).on('error', function(e) {
         console.log("error: " + e.message);
     })
     req.end();
-} */
+}
+
+let getUserByOpenid = function (openid) { // 查openid
+    return new Promise ((resolve, reject) => {
+        connection.query('SELECT * FROM user WHERE user.openid="' + openid + '"', function (err, result) {
+            if(err){
+                console.log('[SELECT ERROR] - ',err.message);
+                return;
+            }
+            resolve(result)
+        });
+    })
+}
+
+let insertUserByOpenid = function (openid) { // 查openid
+    return new Promise ((resolve, reject) => {
+        connection.query('INSERT INTO user (openid) VALUES ("' + openid + '")', function (err, result) {
+            if(err){
+                console.log('[SELECT ERROR] - ',err.message);
+                return;
+            }
+            resolve(result);
+        });
+    })
+}
 
 module.exports = router;
