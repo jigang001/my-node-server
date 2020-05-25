@@ -1,17 +1,16 @@
 const express = require('express');
 const https = require('https');
 const mysql  = require('mysql');
+const querySql = require("../util/db");
 const router = express.Router();
 
-const connection = mysql.createConnection({
-    host     : '118.25.47.118',
-    user     : 'root',
-    password : 'jigang=19900317',
+const pool = mysql.createPool({
+    host: '118.25.47.118',
+    user: 'root',
+    password: 'jigang=19900317',
     port: '3306',
     database: 'my-occ'
-});
-
-connection.connect();
+})
 
 /* GET users listing. */
  router.get('/', function(req, res, next) {
@@ -57,7 +56,7 @@ function getOpenId (code, callback) { // 查询openId
 
 let getUserByOpenid = function (openid) { // 查openid
     return new Promise ((resolve, reject) => {
-        connection.query('SELECT * FROM user WHERE user.openid="' + openid + '"', function (err, result) {
+        querySql(pool, 'SELECT * FROM user WHERE user.openid="' + openid + '"', function (err, result) {
             if(err){
                 console.log('[SELECT ERROR] - ',err.message);
                 return;
@@ -69,7 +68,7 @@ let getUserByOpenid = function (openid) { // 查openid
 
 let insertUserByOpenid = function (openid) { // 查openid
     return new Promise ((resolve, reject) => {
-        connection.query('INSERT INTO user (openid) VALUES ("' + openid + '")', function (err, result) {
+        querySql(pool, 'INSERT INTO user (openid) VALUES ("' + openid + '")', function (err, result) {
             if(err){
                 console.log('[SELECT ERROR] - ',err.message);
                 return;
