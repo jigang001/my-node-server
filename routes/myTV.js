@@ -1,5 +1,5 @@
 const express = require('express');
-const https = require('https');
+const http = require('http');
 const redis = require('redis');
 const client = redis.createClient(6379, '127.0.0.1');
 const router = express.Router();
@@ -78,7 +78,7 @@ function getLookUp (path, callback) { // 查询频道列表
         }
     }
     let body = '';
-    let req = https.request(opt, function(res) {
+    let req = http.request(opt, function(res) {
         res.on('data',function(data){
             body += data;
         }).on('end', function(){
@@ -100,7 +100,7 @@ function getTVlist (path, callback) { // 查询频道列表
         }
     }
     let body = '';
-    let req = https.request(opt, function(res) {
+    let req = http.request(opt, function(res) {
         res.on('data',function(data){
             body += data;
         }).on('end', function(){
