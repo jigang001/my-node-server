@@ -1,7 +1,7 @@
 const express = require('express');
 const https = require('https');
 const mysql  = require('mysql');
-const querySql = require("../util/db");
+const querySql = require("../../util/db");
 const router = express.Router();
 
 const pool = mysql.createPool({

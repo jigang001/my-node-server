@@ -1,7 +1,7 @@
 const express = require('express');
 const https = require('https');
 const mysql  = require('mysql');
-const querySql = require("../util/db");
+const querySql = require("../../util/db");
 const router = express.Router();
 
 const pool = mysql.createPool({
@@ -9,11 +9,11 @@ const pool = mysql.createPool({
     user: 'root',
     password: 'jigang=19900317',
     port: '3306',
-    database: 'my-occ'
+    database: 'my-tv'
 })
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+ router.get('/', function(req, res, next) {
     getOpenId ( req.query.code, (body) => {
         res.json(JSON.parse(body))
         res.end();
@@ -24,7 +24,7 @@ function getOpenId (code, callback) { // 查询openId
     let opt = {
         host: 'api.weixin.qq.com', // 这里填主域名
         method:'GET',
-        path:'https://api.weixin.qq.com/sns/jscode2session?appid=wx4b739ff21bfcc47f&secret=8af4746292b3b1820ba64845354247d1&js_code=' + code + '&grant_type=authorization_code', // 这里填完整url
+        path:'https://api.weixin.qq.com/sns/jscode2session?appid=wx37eee90e5a5337a7&secret=c3309a76436e330857308e208f169b05&js_code=' + code + '&grant_type=authorization_code', // 这里填完整url
         headers:{
             "Content-Type": 'application/json',
         }
